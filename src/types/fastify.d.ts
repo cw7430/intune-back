@@ -1,5 +1,5 @@
 import 'fastify';
-import { AuthenticatedUser } from '@/common/auth/types';
+import { AuthenticatedUser } from '@/modules/auth/types';
 
 declare module 'fastify' {
   interface FastifyRequest {
