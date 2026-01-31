@@ -9,7 +9,7 @@ import { SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { appConfig, swaggerConfig } from './common/config';
-import { GlobalExceptionFilter, CustomException } from './common/api/exception';
+import { GlobalExceptionFilter, CustomException } from './common/api/exception/global.exception';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(

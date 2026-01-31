@@ -1,9 +1,5 @@
 import { ResponseDto } from './response.dto';
-
-interface ResponseType {
-  code: string;
-  message: string;
-}
+import { ResponseType } from './types';
 
 export abstract class ErrorResponseDto extends ResponseDto {
   protected constructor(code: string, message: string) {
