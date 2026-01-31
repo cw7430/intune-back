@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
@@ -8,6 +8,7 @@ import type { DbConfig } from '@/common/config';
 
 const DRIZZLE = 'DRIZZLE_CONNECTION';
 
+@Global()
 @Module({
   providers: [
     {
@@ -24,7 +25,7 @@ const DRIZZLE = 'DRIZZLE_CONNECTION';
           user: db.USER,
           password: db.PASSWORD,
           database: db.NAME,
-          ssl: db.SSL
+          ssl: db.SSL,
         });
 
         const client = await pool.connect();

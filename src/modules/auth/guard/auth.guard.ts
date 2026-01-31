@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, type ExecutionContext } from '@nestjs/common';
 import { type FastifyRequest } from 'fastify';
 
-import { JwtUtil } from '@/common/auth/jwt/jwt.util';
+import { JwtUtil } from '@/modules/auth/jwt/jwt.util';
 import { CustomException } from '@/common/api/exception/global.exception';
 
 @Injectable()

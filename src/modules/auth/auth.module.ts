@@ -5,10 +5,11 @@ import { JwtProvider } from './jwt/jwt.provider';
 import { JwtUtil } from './jwt/jwt.util';
 import { AuthGuard } from './guard/auth.guard';
 import { RoleGuard } from './guard/role.guard';
+import { UserModule } from '@/modules/user/user.module';
 
 @Module({
-  imports: [JwtModule.register({})],
+  imports: [JwtModule.register({}), UserModule],
   providers: [JwtProvider, JwtUtil, AuthGuard, RoleGuard],
-  exports: [JwtProvider, JwtUtil, AuthGuard, RoleGuard],
+  exports: [AuthGuard, RoleGuard],
 })
 export class AuthModule {}

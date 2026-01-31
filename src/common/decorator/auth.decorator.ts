@@ -1,6 +1,6 @@
 import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
 import { type FastifyRequest } from 'fastify';
-import { type AuthenticatedUser } from '@/common/auth/types';
+import { type AuthenticatedUser } from '@/modules/auth/types';
 
 export const CurrentUser = createParamDecorator(
   (key: keyof AuthenticatedUser | undefined, ctx: ExecutionContext) => {

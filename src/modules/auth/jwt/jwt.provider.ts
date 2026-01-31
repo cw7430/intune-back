@@ -6,7 +6,7 @@ import { jwtConfig } from '@/common/config';
 import type {
   AccessTokenClaims,
   RefreshTokenClaims,
-} from '@/common/auth/types';
+} from '@/modules/auth/types';
 
 @Injectable()
 export class JwtProvider {
