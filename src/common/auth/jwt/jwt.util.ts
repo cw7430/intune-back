@@ -1,0 +1,87 @@
+import { Injectable } from '@nestjs/common';
+import { type FastifyRequest } from 'fastify';
+
+import { JwtProvider } from './jwt.provider';
+import { CustomException } from '@/common/api/exception/global.exception';
+
+@Injectable()
+export class JwtUtil {
+  constructor(private readonly jwtProvider: JwtProvider) {}
+
+  private async getAccessClaims(token: string) {
+    const claims = await this.jwtProvider.parseAccessClaims(token);
+    if (!claims) {
+      throw new CustomException('UNAUTHORIZED');
+    }
+    return claims;
+  }
+
+  private async getRefreshClaims(token: string) {
+    const claims = await this.jwtProvider.parseRefreshClaims(token);
+    if (!claims) {
+      throw new CustomException('UNAUTHORIZED');
+    }
+    return claims;
+  }
+
+  /**
+   * Token 추출
+   */
+  extractToken(request: FastifyRequest): string {
+    const header = request.headers.authorization;
+
+    if (!header || !header.toLowerCase().startsWith('bearer ')) {
+      throw new CustomException('UNAUTHORIZED');
+    }
+
+    const token = header.slice(7).trim();
+
+    if (!token) {
+      throw new CustomException('UNAUTHORIZED');
+    }
+
+    return token;
+  }
+
+  /**
+   * AccessToken 검증
+   */
+  async validateAccessToken(token: string) {
+    await this.getAccessClaims(token);
+  }
+
+  /**
+   * AccessToken 에서 userId 추출
+   */
+  async extractUserIdFromAccessToken(token: string) {
+    return BigInt((await this.getAccessClaims(token)).sub);
+  }
+
+  /**
+   * AccessToken 에서 Role 추출
+   */
+  async extractRoleFromAccessToken(token: string) {
+    return (await this.getAccessClaims(token)).role;
+  }
+
+  /**
+   * AccessToken 에서 expiration 추출
+   */
+  async extractExpirationFromAccessToken(token: string) {
+    return BigInt((await this.getAccessClaims(token)).exp) * 1000n;
+  }
+
+  /**
+   * RefreshToken 에서 userId 추출
+   */
+  async extractUserIdFromRefreshToken(token: string) {
+    return BigInt((await this.getRefreshClaims(token)).sub);
+  }
+
+  /**
+   * RefreshToken 에서 expiration 추출
+   */
+  async extractExpirationFromRefreshToken(token: string) {
+    return BigInt((await this.getRefreshClaims(token)).exp) * 1000n;
+  }
+}

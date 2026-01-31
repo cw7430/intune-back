@@ -1,10 +1,11 @@
 import {
+  Logger,
   Catch,
   HttpException,
   type ExceptionFilter,
   type ArgumentsHost,
 } from '@nestjs/common';
-import { FastifyReply } from 'fastify';
+import { type FastifyReply } from 'fastify';
 
 import { ErrorResponseDto } from '@/common/api/response';
 import { ResponseCode, type ResponseCodeKey } from '@/common/api/code';
@@ -30,9 +31,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 }
 
 export class GlobalExceptionHandler {
+  private readonly log = new Logger(GlobalExceptionHandler.name);
+
   handleCustomException(exception: CustomException<unknown>): ErrorResponseDto {
     if (exception.responseCodeKey === 'VALIDATION_ERROR') {
-      console.warn(
+      this.log.warn(
         `Validation exception occurred: ${JSON.stringify(exception.payload)}`,
       );
 
@@ -42,12 +45,12 @@ export class GlobalExceptionHandler {
       );
     }
 
-    console.error(`Custom exception occurred: ${exception.responseCodeKey}`);
+    this.log.error(`Custom exception occurred: ${exception.responseCodeKey}`);
     return ErrorResponseDto.from(ResponseCode[exception.responseCodeKey]);
   }
 
   handleGeneralException(exception: unknown): ErrorResponseDto {
-    console.error('Unhandled exception occurred:', exception);
+    this.log.error('Unhandled exception occurred:', exception);
     return ErrorResponseDto.from(ResponseCode.INTERNAL_SERVER_ERROR);
   }
 }
