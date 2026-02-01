@@ -21,30 +21,44 @@ export class JwtProvider {
   /**
    * AccessToken 생성
    */
-  async generateAccessToken(id: bigint, userRole: string): Promise<string> {
+  async generateAccessToken(id: bigint, userRole: 'USER' | 'ADMIN') {
     const payload = {
       sub: id.toString(),
       role: userRole,
     };
 
-    return this.jwtService.signAsync(payload, {
+    const token = await this.jwtService.signAsync(payload, {
       secret: this.config.JWT_ACCESS_SECRET,
       expiresIn: this.config.JWT_ACCESS_EXPIRATION,
     });
+
+    const decoded = this.jwtService.decode<AccessTokenClaims>(token);
+
+    return {
+      token,
+      expiryMs: decoded.exp * 1000,
+    };
   }
 
   /**
    * RefreshToken 생성
    */
-  async generateRefreshToken(id: bigint, isAuto: boolean): Promise<string> {
+  async generateRefreshToken(id: bigint, isAuto: boolean) {
     const payload = { sub: id.toString() };
 
     const expiresIn = isAuto ? '365d' : this.config.JWT_REFRESH_EXPIRATION;
 
-    return this.jwtService.signAsync(payload, {
+    const token = await this.jwtService.signAsync(payload, {
       secret: this.config.JWT_REFRESH_SECRET,
       expiresIn: expiresIn,
     });
+
+    const decoded = this.jwtService.decode<RefreshTokenClaims>(token);
+
+    return {
+      token,
+      expiryMs: decoded.exp * 1000,
+    };
   }
 
   /**

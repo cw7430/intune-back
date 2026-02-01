@@ -2,7 +2,6 @@ import { Injectable, CanActivate, type ExecutionContext } from '@nestjs/common';
 import { type FastifyRequest } from 'fastify';
 
 import { JwtUtil } from '@/modules/auth/jwt/jwt.util';
-import { CustomException } from '@/common/api/exception/global.exception';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,10 +16,6 @@ export class AuthGuard implements CanActivate {
 
     const userId = await this.jwtUtil.extractUserIdFromAccessToken(token);
     const role = await this.jwtUtil.extractRoleFromAccessToken(token);
-
-    if (role === 'LEFT') {
-      throw new CustomException('UNAUTHORIZED');
-    }
 
     request.user = {
       userId,

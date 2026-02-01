@@ -19,12 +19,18 @@ export class AuthService {
 
   private readonly log = new Logger(AuthService.name);
 
-  async nativeSignIn(requestDto: NativeSignInRequestDto) {
+  async nativeSignIn(
+    requestDto: NativeSignInRequestDto,
+  ): Promise<SignInResponseDto> {
     const signInResult = await this.userRepository.findNativeSignInInfoByEmail(
       requestDto.email,
     );
 
     if (!signInResult) {
+      throw new CustomException('LOGIN_ERROR');
+    }
+
+    if (signInResult.authRole === 'LEFT') {
       throw new CustomException('LOGIN_ERROR');
     }
 
@@ -34,23 +40,25 @@ export class AuthService {
       throw new CustomException('LOGIN_ERROR');
     }
 
-    const accessToken = await this.jwtProvider.generateAccessToken(
+    const accessTokenAndExpiry = await this.jwtProvider.generateAccessToken(
       signInResult.userId,
       signInResult.authRole,
     );
 
-    const accessTokenExpiryMs =
-      await this.jwtUtil.extractExpirationFromAccessToken(accessToken);
+    const accessToken = accessTokenAndExpiry.token;
 
-    const refreshToken = await this.jwtProvider.generateRefreshToken(
+    const accessTokenExpiryMs = accessTokenAndExpiry.expiryMs;
+
+    const refreshTokenAndExpiry = await this.jwtProvider.generateRefreshToken(
       signInResult.userId,
       requestDto.isAuto,
     );
 
-    const refreshTokenExpiryMs =
-      await this.jwtUtil.extractExpirationFromRefreshToken(refreshToken);
+    const refreshToken = refreshTokenAndExpiry.token;
 
-    const refreshTokenExpiredAt = new Date(Number(refreshTokenExpiryMs));
+    const refreshTokenExpiryMs = refreshTokenAndExpiry.expiryMs;
+
+    const refreshTokenExpiredAt = new Date(refreshTokenExpiryMs);
 
     await this.userRepository.createRefreshToken(
       signInResult.userId,
@@ -64,6 +72,7 @@ export class AuthService {
       accessTokenExpiryMs,
       refreshTokenExpiryMs,
       nickName: signInResult.nickName,
+      gender: signInResult.gender,
       authRole: signInResult.authRole,
     };
 

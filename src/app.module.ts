@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { appConfig, dbConfig, jwtConfig } from './common/config';
+import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 
@@ -14,6 +15,7 @@ import { UserModule } from './modules/user/user.module';
       envFilePath: [`.env.${process.env.APP_ENV ?? 'local'}`, `.env`],
       load: [appConfig, dbConfig, jwtConfig],
     }),
+    DatabaseModule,
     AuthModule,
     UserModule,
   ],
