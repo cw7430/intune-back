@@ -13,7 +13,7 @@ export class UserRepository {
 
   async findNativeSignInInfoByEmail(email: string) {
     const { user, nativeUser } = schema;
-    const { userId, authRole, nickName } = user;
+    const { userId, authRole, nickName, gender } = user;
     const { passwordHash } = nativeUser;
     const result = await this.db
       .select({
@@ -21,6 +21,7 @@ export class UserRepository {
         passwordHash,
         authRole,
         nickName,
+        gender,
       })
       .from(user)
       .where(and(eq(user.email, email), ne(user.authRole, 'LEFT')))
@@ -32,9 +33,9 @@ export class UserRepository {
 
   async findSocialSignInInfoByProviderId(providerUserId: string) {
     const { user, socialUser } = schema;
-    const { userId, authRole, nickName } = user;
+    const { userId, authRole, nickName, gender } = user;
     const result = await this.db
-      .select({ userId, authRole, nickName })
+      .select({ userId, authRole, nickName, gender })
       .from(socialUser)
       .where(
         and(
@@ -50,12 +51,13 @@ export class UserRepository {
 
   async findRefreshInfoByEmail(userId: bigint) {
     const { user } = schema;
-    const { authRole, nickName } = user;
+    const { authRole, nickName, gender } = user;
 
     const result = await this.db
       .select({
         authRole,
         nickName,
+        gender,
       })
       .from(user)
       .where(and(eq(user.userId, userId), ne(user.authRole, 'LEFT')))

@@ -38,7 +38,7 @@ async function bootstrap() {
 
   if (appConfigValue.APP_ENV !== 'production') {
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('swagger-ui', app, document);
   }
 
   await app.listen(appConfigValue.PORT);

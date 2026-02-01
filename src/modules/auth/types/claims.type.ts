@@ -5,5 +5,5 @@ export type RefreshTokenClaims = {
 };
 
 export type AccessTokenClaims = RefreshTokenClaims & {
-  role: 'USER' | 'ADMIN' | 'LEFT';
+  role: 'USER' | 'ADMIN';
 };

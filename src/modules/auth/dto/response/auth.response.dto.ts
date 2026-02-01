@@ -1,25 +1,36 @@
 import { Expose } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
-import { TransformBigintToString } from '@/common/decorator';
+import { TransformNumberToString } from '@/common/decorator';
 
 export class SignInResponseDto {
+  @ApiProperty({ type: String })
   @Expose()
   accessToken: string;
 
+  @ApiProperty({ type: String })
   @Expose()
   refreshToken: string;
 
+  @ApiProperty({ type: String })
   @Expose()
-  @TransformBigintToString()
+  @TransformNumberToString()
   accessTokenExpiryMs: string;
 
+  @ApiProperty({ type: String })
   @Expose()
-  @TransformBigintToString()
+  @TransformNumberToString()
   refreshTokenExpiryMs: string;
 
+  @ApiProperty({ type: String })
   @Expose()
-  nickName: string;
+  nickName: string | null;
 
+  @ApiProperty({ type: String })
   @Expose()
-  authRole: 'USER' | 'ADMIN' | 'LEFT';
+  gender: 'MALE' | 'FEMALE' | null;
+
+  @ApiProperty({ type: String })
+  @Expose()
+  authRole: 'USER' | 'ADMIN';
 }

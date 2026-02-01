@@ -20,3 +20,8 @@ export class NativeSignInRequestDto {
   @IsOptional()
   isAuto: boolean = false;
 }
+
+export class RefreshRequestDto {
+  @IsOptional()
+  isAuto: boolean = false;
+}

@@ -11,3 +11,15 @@ export const TransformStringToBigint = () => {
     return typeof value === 'string' ? BigInt(value) : value;
   });
 };
+
+export const TransformNumberToString = () => {
+  return Transform(({ value }: TransformFnParams): string => {
+    return typeof value === 'number' ? value.toString() : value;
+  });
+};
+
+export const TransformStringToNumber = () => {
+  return Transform(({ value }: TransformFnParams): number => {
+    return typeof value === 'string' ? Number(value) : value;
+  });
+};
