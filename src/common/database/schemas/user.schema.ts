@@ -51,7 +51,9 @@ export const user = userSchema.table(
     primaryKey({ name: 'pk_user', columns: [table.userId] }),
     uniqueIndex('uq_user_email')
       .on(table.email)
-      .where(sql`${table.authRole} <> 'LEFT'`),
+      .where(
+        sql`${table.authType} <> 'SOCIAL' AND ${table.authRole} <> 'LEFT'`,
+      ),
     index('ix_active_user_created_at')
       .on(table.createdAt.desc())
       .where(sql`${table.authRole} <> 'LEFT'`),
