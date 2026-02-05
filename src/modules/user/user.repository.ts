@@ -116,7 +116,13 @@ export class UserRepository {
     const [row] = await this.db
       .select({ exists: sql<boolean>`true` })
       .from(user)
-      .where(eq(user.email, email))
+      .where(
+        and(
+          eq(user.email, email),
+          ne(user.authType, 'SOCIAL'),
+          ne(user.authRole, 'LEFT'),
+        ),
+      )
       .limit(1);
 
     return !!row;

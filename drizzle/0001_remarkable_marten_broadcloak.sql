@@ -1,0 +1,2 @@
+DROP INDEX "user"."uq_user_email";--> statement-breakpoint
+CREATE UNIQUE INDEX "uq_user_email" ON "user"."user" USING btree ("email") WHERE "user"."user"."auth_type" <> 'SOCIAL' AND "user"."user"."auth_role" <> 'LEFT';
