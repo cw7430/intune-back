@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { type FastifyRequest } from 'fastify';
 import { plainToInstance } from 'class-transformer';
 import bcrypt from 'bcrypt';
 
 import { UserRepository } from '@/modules/user/user.repository';
-import { JwtProvider } from './jwt/jwt.provider';
-import { JwtUtil } from './jwt/jwt.util';
-import { NativeSignInRequestDto } from './dto/request';
+import { AuthUtil } from './auth.util';
+import { NativeSignInRequestDto, RefreshRequestDto } from './dto/request';
 import { SignInResponseDto } from './dto/response';
 import { CustomException } from '@/common/api/exception/global.exception';
 
@@ -13,8 +13,7 @@ import { CustomException } from '@/common/api/exception/global.exception';
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly jwtProvider: JwtProvider,
-    private readonly jwtUtil: JwtUtil,
+    private readonly authUtil: AuthUtil,
   ) {}
 
   private readonly log = new Logger(AuthService.name);
@@ -40,37 +39,21 @@ export class AuthService {
       throw new CustomException('LOGIN_ERROR');
     }
 
-    const accessTokenAndExpiry = await this.jwtProvider.generateAccessToken(
-      signInResult.userId,
-      signInResult.authRole,
-    );
-
-    const accessToken = accessTokenAndExpiry.token;
-
-    const accessTokenExpiryMs = accessTokenAndExpiry.expiryMs;
-
-    const refreshTokenAndExpiry = await this.jwtProvider.generateRefreshToken(
-      signInResult.userId,
-      requestDto.isAuto,
-    );
-
-    const refreshToken = refreshTokenAndExpiry.token;
-
-    const refreshTokenExpiryMs = refreshTokenAndExpiry.expiryMs;
-
-    const refreshTokenExpiredAt = new Date(refreshTokenExpiryMs);
+    const { tokenResponse, refreshTokenExpiredAt } =
+      await this.authUtil.issueTokens(
+        signInResult.userId,
+        signInResult.authRole,
+        requestDto.isAuto,
+      );
 
     await this.userRepository.createRefreshToken(
       signInResult.userId,
-      refreshToken,
+      tokenResponse.refreshToken,
       refreshTokenExpiredAt,
     );
 
     const response = {
-      accessToken,
-      refreshToken,
-      accessTokenExpiryMs,
-      refreshTokenExpiryMs,
+      ...tokenResponse,
       nickName: signInResult.nickName,
       gender: signInResult.gender,
       authRole: signInResult.authRole,
@@ -81,5 +64,71 @@ export class AuthService {
     return plainToInstance(SignInResponseDto, response, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async refreshToken(
+    request: FastifyRequest,
+    requestDto: RefreshRequestDto,
+  ): Promise<SignInResponseDto> {
+    const formalTokenInfo = await this.authUtil.getFormalRefreshInfo(request);
+
+    const formalRefreshTokenInfo =
+      await this.userRepository.findRefreshTokenIdByUserIdAndToken(
+        formalTokenInfo.userId,
+        formalTokenInfo.refreshToken,
+      );
+
+    if (!formalRefreshTokenInfo) {
+      throw new CustomException('UNAUTHORIZED');
+    }
+
+    const refreshResult = await this.userRepository.findRefreshInfoByUserId(
+      formalTokenInfo.userId,
+    );
+
+    if (!refreshResult) {
+      throw new CustomException('UNAUTHORIZED');
+    }
+
+    if (refreshResult.authRole === 'LEFT') {
+      throw new CustomException('LOGIN_ERROR');
+    }
+
+    const { tokenResponse, refreshTokenExpiredAt } =
+      await this.authUtil.issueTokens(
+        formalTokenInfo.userId,
+        refreshResult.authRole,
+        requestDto.isAuto,
+      );
+
+    await this.userRepository.updateRefreshToken(
+      formalRefreshTokenInfo.refreshTokenId,
+      tokenResponse.refreshToken,
+      refreshTokenExpiredAt,
+    );
+
+    const response = {
+      ...tokenResponse,
+      nickName: refreshResult.nickName,
+      gender: refreshResult.gender,
+      authRole: refreshResult.authRole,
+    };
+
+    this.log.log(
+      `Refresh Token successfully for user ID: ${formalTokenInfo.userId}`,
+    );
+
+    return plainToInstance(SignInResponseDto, response, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async signOut(request: FastifyRequest): Promise<void> {
+    const signOutInfo = await this.authUtil.getFormalRefreshInfo(request);
+    await this.userRepository.deleteRefreshTokenByToken(
+      signOutInfo.refreshToken,
+    );
+
+    this.log.log(`Sign Out successfully for user ID: ${signOutInfo.userId}`);
   }
 }

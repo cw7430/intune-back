@@ -65,23 +65,9 @@ export class JwtUtil {
   }
 
   /**
-   * AccessToken 에서 expiration 추출
-   */
-  async extractExpirationFromAccessToken(token: string) {
-    return BigInt((await this.getAccessClaims(token)).exp) * 1000n;
-  }
-
-  /**
    * RefreshToken 에서 userId 추출
    */
   async extractUserIdFromRefreshToken(token: string) {
     return BigInt((await this.getRefreshClaims(token)).sub);
-  }
-
-  /**
-   * RefreshToken 에서 expiration 추출
-   */
-  async extractExpirationFromRefreshToken(token: string) {
-    return BigInt((await this.getRefreshClaims(token)).exp) * 1000n;
   }
 }
