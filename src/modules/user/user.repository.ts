@@ -24,7 +24,13 @@ export class UserRepository {
         gender,
       })
       .from(user)
-      .where(and(eq(user.email, email), ne(user.authRole, 'LEFT')))
+      .where(
+        and(
+          eq(user.email, email),
+          ne(user.authType, 'SOCIAL'),
+          ne(user.authRole, 'LEFT'),
+        ),
+      )
       .innerJoin(nativeUser, eq(user.userId, nativeUser.nativeUserId))
       .limit(1);
 
@@ -49,7 +55,7 @@ export class UserRepository {
     return result[0] ?? undefined;
   }
 
-  async findRefreshInfoByEmail(userId: bigint) {
+  async findRefreshInfoByUserId(userId: bigint) {
     const { user } = schema;
     const { authRole, nickName, gender } = user;
 
@@ -92,12 +98,12 @@ export class UserRepository {
     return inserted.id;
   }
 
-  async updateRefreshToken(refreshTokenId: bigint, token: string) {
+  async updateRefreshToken(refreshTokenId: bigint, token: string, expiredAt: Date) {
     const { refreshToken } = schema;
 
     const [updated] = await this.db
       .update(refreshToken)
-      .set({ token })
+      .set({ token, expiredAt })
       .where(eq(refreshToken.refreshTokenId, refreshTokenId))
       .returning({ id: refreshToken.refreshTokenId });
 
