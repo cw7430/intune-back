@@ -9,7 +9,6 @@ import { type FastifyReply } from 'fastify';
 
 import { ErrorResponseDto } from '@/common/api/response';
 import { ResponseCode, type ResponseCodeKey } from '@/common/api/code';
-
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private handler = new GlobalExceptionHandler();
@@ -50,8 +49,30 @@ export class GlobalExceptionHandler {
   }
 
   handleGeneralException(exception: unknown): ErrorResponseDto {
+    if (this.isPostgresError(exception)) {
+      this.log.error(
+        `Database Error: [${exception.code}] ${exception.message}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
+      return ErrorResponseDto.from(ResponseCode.INTERNAL_SERVER_ERROR);
+    }
+
     this.log.error('Unhandled exception occurred:', exception);
     return ErrorResponseDto.from(ResponseCode.INTERNAL_SERVER_ERROR);
+  }
+
+  private isPostgresError(
+    exception: unknown,
+  ): exception is { code: string; message: string } {
+    const ex = exception as Record<string, unknown>;
+
+    return (
+      !!ex &&
+      typeof ex.code === 'string' &&
+      typeof ex.message === 'string' &&
+      ex.code.length === 5 &&
+      /^[0-9A-Z]{5}$/.test(ex.code)
+    );
   }
 }
 
