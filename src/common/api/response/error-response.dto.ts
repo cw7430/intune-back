@@ -1,5 +1,5 @@
 import { ResponseDto } from './response.dto';
-import { ResponseType } from './types';
+import { type ResponseType } from '@/common/api/types';
 
 export abstract class ErrorResponseDto extends ResponseDto {
   protected constructor(code: string, message: string) {

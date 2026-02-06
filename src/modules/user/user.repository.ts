@@ -1,21 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { sql, eq, ne, and } from 'drizzle-orm';
-import { type NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import * as schema from '@/common/database/schemas';
+import { type DbOrTx } from '@/common/database/types';
 
 @Injectable()
 export class UserRepository {
-  constructor(
-    @Inject('DRIZZLE_CONNECTION')
-    private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
-
-  async findNativeSignInInfoByEmail(email: string) {
+  async findNativeSignInInfoByEmail(conn: DbOrTx, email: string) {
     const { user, nativeUser } = schema;
     const { userId, authRole, nickName, gender } = user;
     const { passwordHash } = nativeUser;
-    const result = await this.db
+    const result = await conn
       .select({
         userId,
         passwordHash,
@@ -37,10 +32,10 @@ export class UserRepository {
     return result[0] ?? undefined;
   }
 
-  async findSocialSignInInfoByProviderId(providerUserId: string) {
+  async findSocialSignInInfoByProviderId(conn: DbOrTx, providerUserId: string) {
     const { user, socialUser } = schema;
     const { userId, authRole, nickName, gender } = user;
-    const result = await this.db
+    const result = await conn
       .select({ userId, authRole, nickName, gender })
       .from(socialUser)
       .where(
@@ -55,11 +50,11 @@ export class UserRepository {
     return result[0] ?? undefined;
   }
 
-  async findRefreshInfoByUserId(userId: bigint) {
+  async findRefreshInfoByUserId(conn: DbOrTx, userId: bigint) {
     const { user } = schema;
     const { authRole, nickName, gender } = user;
 
-    const result = await this.db
+    const result = await conn
       .select({
         authRole,
         nickName,
@@ -72,11 +67,15 @@ export class UserRepository {
     return result[0] ?? undefined;
   }
 
-  async findRefreshTokenIdByUserIdAndToken(userId: bigint, token: string) {
+  async findRefreshTokenIdByUserIdAndToken(
+    conn: DbOrTx,
+    userId: bigint,
+    token: string,
+  ) {
     const { refreshToken } = schema;
     const { refreshTokenId } = refreshToken;
 
-    const result = await this.db
+    const result = await conn
       .select({ refreshTokenId })
       .from(refreshToken)
       .where(
@@ -87,39 +86,45 @@ export class UserRepository {
     return result[0] ?? undefined;
   }
 
-  async createRefreshToken(userId: bigint, token: string, expiredAt: Date) {
+  async createRefreshToken(
+    conn: DbOrTx,
+    userId: bigint,
+    token: string,
+    expiredAt: Date,
+  ) {
     const { refreshToken } = schema;
 
-    const [inserted] = await this.db
+    return conn
       .insert(refreshToken)
       .values({ userId, token, expiredAt })
       .returning({ id: refreshToken.refreshTokenId });
-
-    return inserted.id;
   }
 
-  async updateRefreshToken(refreshTokenId: bigint, token: string, expiredAt: Date) {
+  async updateRefreshToken(
+    conn: DbOrTx,
+    refreshTokenId: bigint,
+    token: string,
+    expiredAt: Date,
+  ) {
     const { refreshToken } = schema;
 
-    const [updated] = await this.db
+    return conn
       .update(refreshToken)
       .set({ token, expiredAt })
       .where(eq(refreshToken.refreshTokenId, refreshTokenId))
       .returning({ id: refreshToken.refreshTokenId });
-
-    return updated.id;
   }
 
-  async deleteRefreshTokenByToken(token: string) {
+  async deleteRefreshTokenByToken(conn: DbOrTx, token: string) {
     const { refreshToken } = schema;
 
-    await this.db.delete(refreshToken).where(eq(refreshToken.token, token));
+    return conn.delete(refreshToken).where(eq(refreshToken.token, token));
   }
 
-  async existsByEmail(email: string) {
+  async existsByEmail(conn: DbOrTx, email: string) {
     const { user } = schema;
 
-    const [row] = await this.db
+    const [row] = await conn
       .select({ exists: sql<boolean>`true` })
       .from(user)
       .where(
@@ -132,5 +137,36 @@ export class UserRepository {
       .limit(1);
 
     return !!row;
+  }
+
+  async createUser(
+    conn: DbOrTx,
+    email: string,
+    nickName: string | null,
+    gender: 'MALE' | 'FEMALE' | null,
+    authType: 'NATIVE' | 'SOCIAL' = 'NATIVE',
+  ) {
+    const { user } = schema;
+    return conn
+      .insert(user)
+      .values({ email, nickName, gender, authType })
+      .returning({
+        id: user.userId,
+        nickName: user.nickName,
+        gender: user.gender,
+        authRole: user.authRole,
+      });
+  }
+
+  async createNativeUser(
+    conn: DbOrTx,
+    nativeUserId: bigint,
+    passwordHash: string,
+  ) {
+    const { nativeUser } = schema;
+    return conn
+      .insert(nativeUser)
+      .values({ nativeUserId, passwordHash })
+      .returning({ id: nativeUser.nativeUserId });
   }
 }

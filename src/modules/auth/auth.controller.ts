@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Patch, Body } from '@nestjs/common';
 import { type FastifyRequest } from 'fastify';
 import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
 
@@ -7,7 +7,12 @@ import {
   SuccessResponseDto,
   SuccessWithResultResponseDto,
 } from '@/common/api/response';
-import { NativeSignInRequestDto, RefreshRequestDto } from './dto/request';
+import {
+  CheckEmailRequestDto,
+  NativeSignInRequestDto,
+  RefreshRequestDto,
+  SignOutRequestDto,
+} from './dto/request';
 import { SignInResponseDto } from './dto/response';
 
 @Controller('/api/v1/auth')
@@ -25,7 +30,7 @@ export class AuthController {
     );
   }
 
-  @Post('/refresh')
+  @Patch('/refresh')
   async refreshToken(
     request: FastifyRequest,
     @Body() requestDto: RefreshRequestDto,
@@ -36,8 +41,14 @@ export class AuthController {
   }
 
   @Post('/sign-out')
-  async signOut(request: FastifyRequest) {
-    await this.authService.signOut(request);
+  async signOut(@Body() requestDto: SignOutRequestDto) {
+    await this.authService.signOut(requestDto);
+    return SuccessResponseDto.ok();
+  }
+
+  @Post('/check-email')
+  async checkEmail(@Body() requestDto: CheckEmailRequestDto) {
+    await this.authService.checkEmail(requestDto);
     return SuccessResponseDto.ok();
   }
 }
