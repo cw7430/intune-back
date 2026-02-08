@@ -15,7 +15,7 @@ import {
 } from './dto/request';
 import { SignInResponseDto } from './dto/response';
 import { CustomException } from '@/common/api/exception/global.exception';
-import * as schema from '@/common/database/schemas';
+import type * as schema from '@/common/database/schemas';
 
 @Injectable()
 export class AuthService {
@@ -181,7 +181,7 @@ export class AuthService {
       );
       await this.userRepository.createNativeUser(
         tx,
-        createUser.id,
+        createUser.userId,
         passwordHash,
       );
       return createUser;
@@ -193,14 +193,14 @@ export class AuthService {
 
     const { tokenResponse, refreshTokenExpiredAt } =
       await this.authUtil.issueTokens(
-        insertedUser.id,
+        insertedUser.userId,
         insertedUser.authRole,
         false,
       );
 
     await this.userRepository.createRefreshToken(
       this.db,
-      insertedUser.id,
+      insertedUser.userId,
       tokenResponse.refreshToken,
       refreshTokenExpiredAt,
     );
@@ -212,7 +212,7 @@ export class AuthService {
       authRole: insertedUser.authRole,
     };
 
-    this.log.log(`Sign Up successfully for user ID: ${insertedUser.id}`);
+    this.log.log(`Sign Up successfully for user ID: ${insertedUser.userId}`);
 
     return plainToInstance(SignInResponseDto, response, {
       excludeExtraneousValues: true,

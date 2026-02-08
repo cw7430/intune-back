@@ -97,7 +97,7 @@ export class UserRepository {
     return conn
       .insert(refreshToken)
       .values({ userId, token, expiredAt })
-      .returning({ id: refreshToken.refreshTokenId });
+      .returning({ refreshTokenId: refreshToken.refreshTokenId });
   }
 
   async updateRefreshToken(
@@ -112,7 +112,7 @@ export class UserRepository {
       .update(refreshToken)
       .set({ token, expiredAt })
       .where(eq(refreshToken.refreshTokenId, refreshTokenId))
-      .returning({ id: refreshToken.refreshTokenId });
+      .returning({ refreshTokenId: refreshToken.refreshTokenId });
   }
 
   async deleteRefreshTokenByToken(conn: DbOrTx, token: string) {
@@ -151,7 +151,7 @@ export class UserRepository {
       .insert(user)
       .values({ email, nickName, gender, authType })
       .returning({
-        id: user.userId,
+        userId: user.userId,
         nickName: user.nickName,
         gender: user.gender,
         authRole: user.authRole,
@@ -167,6 +167,56 @@ export class UserRepository {
     return conn
       .insert(nativeUser)
       .values({ nativeUserId, passwordHash })
-      .returning({ id: nativeUser.nativeUserId });
+      .returning({ nativeUserId: nativeUser.nativeUserId });
+  }
+
+  async updateUserEmail(conn: DbOrTx, userId: bigint, email: string) {
+    const { user } = schema;
+    return conn
+      .update(user)
+      .set({ email, updatedAt: sql`CURRENT_TIMESTAMP` })
+      .where(eq(user.userId, userId));
+  }
+
+  async updateUserNickName(conn: DbOrTx, userId: bigint, nickName: string) {
+    const { user } = schema;
+    return conn
+      .update(user)
+      .set({ nickName, updatedAt: sql`CURRENT_TIMESTAMP` })
+      .where(eq(user.userId, userId));
+  }
+
+  async updateGender(conn: DbOrTx, userId: bigint, gender: 'MALE' | 'FEMALE') {
+    const { user } = schema;
+    return conn
+      .update(user)
+      .set({ gender, updatedAt: sql`CURRENT_TIMESTAMP` })
+      .where(eq(user.userId, userId));
+  }
+
+  async updateUserInfo(
+    conn: DbOrTx,
+    userId: bigint,
+    nickName: string,
+    gender: 'MALE' | 'FEMALE',
+  ) {
+    const { user } = schema;
+    return conn
+      .update(user)
+      .set({ nickName, gender, updatedAt: sql`CURRENT_TIMESTAMP` })
+      .where(eq(user.userId, userId));
+  }
+
+  async updateNativeUser(
+    conn: DbOrTx,
+    nativeUserId: bigint,
+    passwordHash: string,
+  ) {
+    const { nativeUser } = schema;
+    return conn
+      .update(nativeUser)
+      .set({ passwordHash })
+      .where(eq(nativeUser.nativeUserId, nativeUserId))
+      .returning({ nativeUserId: nativeUser.nativeUserId });
   }
 }

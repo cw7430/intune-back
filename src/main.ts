@@ -9,7 +9,10 @@ import { SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { appConfig, swaggerConfig } from './common/config';
-import { GlobalExceptionFilter, CustomException } from './common/api/exception/global.exception';
+import {
+  GlobalExceptionFilter,
+  CustomException,
+} from './common/api/exception/global.exception';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -43,4 +46,10 @@ async function bootstrap() {
 
   await app.listen(appConfigValue.PORT);
 }
-bootstrap();
+
+(async () => {
+  await bootstrap();
+})().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

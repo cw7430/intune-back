@@ -15,7 +15,7 @@ export abstract class SuccessResponseDto extends ResponseDto {
   }
 }
 
-export class SuccessSimpleResponseDto extends SuccessResponseDto {
+class SuccessSimpleResponseDto extends SuccessResponseDto {
   static readonly INSTANCE = new SuccessSimpleResponseDto();
 
   private constructor() {
@@ -23,7 +23,7 @@ export class SuccessSimpleResponseDto extends SuccessResponseDto {
   }
 }
 
-export class SuccessWithResultResponseDto<T> extends SuccessResponseDto {
+class SuccessWithResultResponseDto<T> extends SuccessResponseDto {
   readonly result: T;
 
   constructor(result: T) {
