@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
@@ -17,6 +17,8 @@ const DRIZZLE = 'DRIZZLE_CONNECTION';
       useFactory: async (
         config: ConfigService,
       ): Promise<NodePgDatabase<typeof schema>> => {
+        const log = new Logger('Drizzle');
+
         const db = config.getOrThrow<DbConfig>('db');
 
         const pool = new Pool({
@@ -31,7 +33,15 @@ const DRIZZLE = 'DRIZZLE_CONNECTION';
         const client = await pool.connect();
         client.release();
 
-        return drizzle(pool, { schema });
+        return drizzle(pool, {
+          schema,
+          logger: {
+            logQuery(query: string, params: unknown[]) {
+              log.debug(query);
+              log.debug(JSON.stringify(params));
+            },
+          },
+        });
       },
     },
   ],

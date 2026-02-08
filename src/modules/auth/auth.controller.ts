@@ -1,29 +1,27 @@
 import { Controller, Post, Patch, Body } from '@nestjs/common';
 import { type FastifyRequest } from 'fastify';
-import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
-import {
-  SuccessResponseDto,
-  SuccessWithResultResponseDto,
-} from '@/common/api/response';
+import { SuccessResponseDto } from '@/common/api/response';
 import {
   CheckEmailRequestDto,
   NativeSignInRequestDto,
+  NativeSignUpRequestDto,
   RefreshRequestDto,
   SignOutRequestDto,
 } from './dto/request';
 import { SignInResponseDto } from './dto/response';
+import { ApiSuccessResponse } from '@/common/decorator';
 
 @Controller('/api/v1/auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/sign-in/native')
   @ApiBody({ type: NativeSignInRequestDto })
-  @ApiOkResponse({
-    type: SuccessWithResultResponseDto<SignInResponseDto>,
-  })
+  @ApiSuccessResponse(SignInResponseDto)
   async nativeSignIn(@Body() requestDto: NativeSignInRequestDto) {
     return SuccessResponseDto.okWith(
       await this.authService.nativeSignIn(requestDto),
@@ -31,6 +29,8 @@ export class AuthController {
   }
 
   @Patch('/refresh')
+  @ApiBody({ type: RefreshRequestDto })
+  @ApiSuccessResponse(SignInResponseDto)
   async refreshToken(
     request: FastifyRequest,
     @Body() requestDto: RefreshRequestDto,
@@ -41,14 +41,27 @@ export class AuthController {
   }
 
   @Post('/sign-out')
+  @ApiBody({ type: SignOutRequestDto })
+  @ApiSuccessResponse()
   async signOut(@Body() requestDto: SignOutRequestDto) {
     await this.authService.signOut(requestDto);
     return SuccessResponseDto.ok();
   }
 
   @Post('/check-email')
+  @ApiBody({ type: CheckEmailRequestDto })
+  @ApiSuccessResponse()
   async checkEmail(@Body() requestDto: CheckEmailRequestDto) {
     await this.authService.checkEmail(requestDto);
     return SuccessResponseDto.ok();
+  }
+
+  @Post('/sign-up/native')
+  @ApiBody({ type: NativeSignUpRequestDto })
+  @ApiSuccessResponse(SignInResponseDto)
+  async nativeSignUp(@Body() requestDto: NativeSignUpRequestDto) {
+    return SuccessResponseDto.okWith(
+      await this.authService.nativeSignUp(requestDto),
+    );
   }
 }
