@@ -172,26 +172,17 @@ export class UserRepository {
 
   async updateUserEmail(conn: DbOrTx, userId: bigint, email: string) {
     const { user } = schema;
-    return conn
-      .update(user)
-      .set({ email, updatedAt: sql`CURRENT_TIMESTAMP` })
-      .where(eq(user.userId, userId));
+    return conn.update(user).set({ email }).where(eq(user.userId, userId));
   }
 
   async updateUserNickName(conn: DbOrTx, userId: bigint, nickName: string) {
     const { user } = schema;
-    return conn
-      .update(user)
-      .set({ nickName, updatedAt: sql`CURRENT_TIMESTAMP` })
-      .where(eq(user.userId, userId));
+    return conn.update(user).set({ nickName }).where(eq(user.userId, userId));
   }
 
   async updateGender(conn: DbOrTx, userId: bigint, gender: 'MALE' | 'FEMALE') {
     const { user } = schema;
-    return conn
-      .update(user)
-      .set({ gender, updatedAt: sql`CURRENT_TIMESTAMP` })
-      .where(eq(user.userId, userId));
+    return conn.update(user).set({ gender }).where(eq(user.userId, userId));
   }
 
   async updateUserInfo(
@@ -203,7 +194,7 @@ export class UserRepository {
     const { user } = schema;
     return conn
       .update(user)
-      .set({ nickName, gender, updatedAt: sql`CURRENT_TIMESTAMP` })
+      .set({ nickName, gender })
       .where(eq(user.userId, userId));
   }
 
