@@ -1,5 +1,6 @@
 import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { inspect } from 'util';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
@@ -30,15 +31,20 @@ const DRIZZLE = 'DRIZZLE_CONNECTION';
           ssl: db.SSL,
         });
 
-        const client = await pool.connect();
-        client.release();
+        try {
+          await pool.query('SELECT 1');
+          log.log('PostgreSQL connected successfully');
+        } catch (e) {
+          log.error('Database connection failed', e);
+          throw e;
+        }
 
         return drizzle(pool, {
           schema,
           logger: {
             logQuery(query: string, params: unknown[]) {
               log.debug(query);
-              log.debug(JSON.stringify(params));
+              log.debug(inspect(params, { colors: true, depth: null }));
             },
           },
         });

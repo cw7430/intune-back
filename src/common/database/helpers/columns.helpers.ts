@@ -11,6 +11,7 @@ export const timestampsForUpdate = {
   ...timestampForCreateOnly,
   updatedAt: timestamp('updated_at', { precision: 6, withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
+    .$onUpdate(() => sql`CURRENT_TIMESTAMP`)
     .notNull(),
 };
 
