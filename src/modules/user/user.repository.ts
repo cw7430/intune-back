@@ -8,11 +8,12 @@ import { type DbOrTx } from '@/common/database/types';
 export class UserRepository {
   async findNativeSignInInfoByEmail(conn: DbOrTx, email: string) {
     const { user, nativeUser } = schema;
-    const { userId, authRole, nickName, gender } = user;
+    const { userId, authType, authRole, nickName, gender } = user;
     const { passwordHash } = nativeUser;
     const result = await conn
       .select({
         userId,
+        authType,
         passwordHash,
         authRole,
         nickName,
@@ -34,9 +35,9 @@ export class UserRepository {
 
   async findSocialSignInInfoByProviderId(conn: DbOrTx, providerUserId: string) {
     const { user, socialUser } = schema;
-    const { userId, authRole, nickName, gender } = user;
+    const { userId, authType, authRole, nickName, gender } = user;
     const result = await conn
-      .select({ userId, authRole, nickName, gender })
+      .select({ userId, authType, authRole, nickName, gender })
       .from(socialUser)
       .where(
         and(
@@ -52,10 +53,11 @@ export class UserRepository {
 
   async findRefreshInfoByUserId(conn: DbOrTx, userId: bigint) {
     const { user } = schema;
-    const { authRole, nickName, gender } = user;
+    const { authType, authRole, nickName, gender } = user;
 
     const result = await conn
       .select({
+        authType,
         authRole,
         nickName,
         gender,
@@ -154,6 +156,7 @@ export class UserRepository {
         userId: user.userId,
         nickName: user.nickName,
         gender: user.gender,
+        authType: user.authType,
         authRole: user.authRole,
       });
   }
