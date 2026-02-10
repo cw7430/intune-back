@@ -69,6 +69,7 @@ export class AuthService {
       nickName: signInResult.nickName,
       gender: signInResult.gender,
       authRole: signInResult.authRole,
+      authType: signInResult.authType,
     };
 
     this.log.log(`Sign In successfully for user ID: ${signInResult.userId}`);
@@ -127,6 +128,7 @@ export class AuthService {
       nickName: refreshResult.nickName,
       gender: refreshResult.gender,
       authRole: refreshResult.authRole,
+      authType: refreshResult.authType,
     };
 
     this.log.log(
@@ -210,6 +212,7 @@ export class AuthService {
       nickName: insertedUser.nickName,
       gender: insertedUser.gender,
       authRole: insertedUser.authRole,
+      authType: insertedUser.authType,
     };
 
     this.log.log(`Sign Up successfully for user ID: ${insertedUser.userId}`);

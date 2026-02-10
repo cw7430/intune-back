@@ -33,4 +33,8 @@ export class SignInResponseDto {
   @ApiProperty({ type: String })
   @Expose()
   authRole: 'USER' | 'ADMIN';
+
+  @ApiProperty({ type: String })
+  @Expose()
+  authType: 'NATIVE' | 'SOCIAL';
 }
