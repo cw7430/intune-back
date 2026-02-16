@@ -30,17 +30,22 @@ export class JwtUtil {
   extractToken(request: FastifyRequest): string {
     const header = request.headers.authorization;
 
-    if (!header || !header.toLowerCase().startsWith('bearer ')) {
+    console.log('All Headers:', request.headers);
+    console.log('Extracted header:', header);
+
+    if (!header) {
       throw new CustomException('UNAUTHORIZED');
     }
 
-    const token = header.slice(7).trim();
+    const match = header.match(/^bearer\s+(.+)$/i);
 
-    if (!token) {
+    if (!match) {
       throw new CustomException('UNAUTHORIZED');
     }
 
-    return token;
+    console.log('Extracted token:', match[1]);
+
+    return match[1].trim();
   }
 
   /**
