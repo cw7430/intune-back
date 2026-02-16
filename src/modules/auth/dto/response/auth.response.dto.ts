@@ -1,8 +1,6 @@
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { TransformNumberToString } from '@/common/decorator';
-
 export class SignInResponseDto {
   @ApiProperty({ type: String })
   @Expose()
@@ -12,15 +10,13 @@ export class SignInResponseDto {
   @Expose()
   refreshToken: string;
 
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: Number })
   @Expose()
-  @TransformNumberToString()
-  accessTokenExpiryMs: string;
+  accessTokenExpiresAtMs: number;
 
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: Number })
   @Expose()
-  @TransformNumberToString()
-  refreshTokenExpiryMs: string;
+  refreshTokenExpiresAtMs: number;
 
   @ApiProperty({ type: String })
   @Expose()
