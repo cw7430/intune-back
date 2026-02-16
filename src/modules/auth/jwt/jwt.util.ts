@@ -30,9 +30,6 @@ export class JwtUtil {
   extractToken(request: FastifyRequest): string {
     const header = request.headers.authorization;
 
-    console.log('All Headers:', request.headers);
-    console.log('Extracted header:', header);
-
     if (!header) {
       throw new CustomException('UNAUTHORIZED');
     }
@@ -42,8 +39,6 @@ export class JwtUtil {
     if (!match) {
       throw new CustomException('UNAUTHORIZED');
     }
-
-    console.log('Extracted token:', match[1]);
 
     return match[1].trim();
   }
