@@ -1,6 +1,6 @@
-import { Controller, Post, Patch, Body } from '@nestjs/common';
+import { Controller, Post, Patch, Body, Req } from '@nestjs/common';
 import { type FastifyRequest } from 'fastify';
-import { ApiTags, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { SuccessResponseDto } from '@/common/api/response';
@@ -29,10 +29,11 @@ export class AuthController {
   }
 
   @Patch('/refresh')
+  @ApiBearerAuth('refreshToken')
   @ApiBody({ type: RefreshRequestDto })
   @ApiSuccessResponse(SignInResponseDto)
   async refreshToken(
-    request: FastifyRequest,
+    @Req() request: FastifyRequest,
     @Body() requestDto: RefreshRequestDto,
   ) {
     return SuccessResponseDto.okWith(
