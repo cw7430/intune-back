@@ -13,7 +13,7 @@ import {
   RefreshRequestDto,
   SignOutRequestDto,
 } from './dto/request';
-import { SignInResponseDto } from './dto/response';
+import { MeResponseDto, SignInResponseDto } from './dto/response';
 import { CustomException } from '@/common/api/exception/global.exception';
 import type * as schema from '@/common/database/schemas';
 
@@ -186,6 +186,7 @@ export class AuthService {
         createUser.userId,
         passwordHash,
       );
+      await this.userRepository.createUserOnlineStatus(tx, createUser.userId);
       return createUser;
     });
 
@@ -220,5 +221,15 @@ export class AuthService {
     return plainToInstance(SignInResponseDto, response, {
       excludeExtraneousValues: true,
     });
+  }
+
+  parseMe(userId: bigint): MeResponseDto {
+    return plainToInstance(
+      MeResponseDto,
+      { userId },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 }

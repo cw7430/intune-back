@@ -173,6 +173,15 @@ export class UserRepository {
       .returning({ nativeUserId: nativeUser.nativeUserId });
   }
 
+  async createUserOnlineStatus(conn: DbOrTx, userOnlineStatusId: bigint) {
+    const { userOnlineStatus } = schema;
+
+    return conn
+      .insert(userOnlineStatus)
+      .values({ userOnlineStatusId })
+      .returning({ userOnlineStatusId: userOnlineStatus.userOnlineStatusId });
+  }
+
   async updateUserEmail(conn: DbOrTx, userId: bigint, email: string) {
     const { user } = schema;
     return conn.update(user).set({ email }).where(eq(user.userId, userId));
@@ -212,5 +221,26 @@ export class UserRepository {
       .set({ passwordHash })
       .where(eq(nativeUser.nativeUserId, nativeUserId))
       .returning({ nativeUserId: nativeUser.nativeUserId });
+  }
+
+  async updateUserOnlineStatusOnline(conn: DbOrTx, userOnlineStatusId: bigint) {
+    const { userOnlineStatus } = schema;
+    return conn
+      .update(userOnlineStatus)
+      .set({ isOnline: true })
+      .where(eq(userOnlineStatus.userOnlineStatusId, userOnlineStatusId))
+      .returning({ userOnlineStatusId: userOnlineStatus.userOnlineStatusId });
+  }
+
+  async updateUserOnlineStatusOffline(
+    conn: DbOrTx,
+    userOnlineStatusId: bigint,
+  ) {
+    const { userOnlineStatus } = schema;
+    return conn
+      .update(userOnlineStatus)
+      .set({ isOnline: false, lastSeenAt: sql`CURRENT_TIMESTAMP` })
+      .where(eq(userOnlineStatus.userOnlineStatusId, userOnlineStatusId))
+      .returning({ userOnlineStatusId: userOnlineStatus.userOnlineStatusId });
   }
 }

@@ -1,6 +1,8 @@
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
+import { TransformBigintToString } from '@/common/decorator';
+
 export class SignInResponseDto {
   @ApiProperty({ type: String })
   @Expose()
@@ -33,4 +35,11 @@ export class SignInResponseDto {
   @ApiProperty({ type: String })
   @Expose()
   authType: 'NATIVE' | 'SOCIAL';
+}
+
+export class MeResponseDto {
+  @TransformBigintToString()
+  @ApiProperty({ type: String })
+  @Expose()
+  userId: string;
 }
