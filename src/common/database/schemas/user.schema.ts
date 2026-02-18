@@ -177,3 +177,34 @@ export const refreshToken = userSchema.table(
     index('ix_refresh_token_expire').on(table.expiresAt),
   ],
 );
+
+export const userOnlineStatus = userSchema.table(
+  'user_online_status',
+  {
+    userOnlineStatusId: bigint('id', { mode: 'bigint' }).notNull(),
+    isOnline: boolean('is_online').notNull().default(false),
+    lastSeenAt: timestamp('last_seen_at', {
+      precision: 6,
+      withTimezone: true,
+    })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    primaryKey({
+      name: 'pk_user_online_status',
+      columns: [table.userOnlineStatusId],
+    }),
+    foreignKey({
+      name: 'fk_user_online_status',
+      columns: [table.userOnlineStatusId],
+      foreignColumns: [user.userId],
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    index('ix_user_online_status_is_online').on(
+      table.isOnline,
+      table.lastSeenAt.desc(),
+    ),
+  ],
+);
