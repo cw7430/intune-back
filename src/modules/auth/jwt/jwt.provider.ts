@@ -36,7 +36,7 @@ export class JwtProvider {
 
     return {
       token,
-      expiryMs: decoded.exp * 1000,
+      expiresAtMs: decoded.exp * 1000,
     };
   }
 
@@ -57,7 +57,7 @@ export class JwtProvider {
 
     return {
       token,
-      expiryMs: decoded.exp * 1000,
+      expiresAtMs: decoded.exp * 1000,
     };
   }
 
