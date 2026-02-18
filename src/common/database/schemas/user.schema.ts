@@ -158,7 +158,7 @@ export const refreshToken = userSchema.table(
       .generatedByDefaultAsIdentity(),
     userId: bigint('user_id', { mode: 'bigint' }).notNull(),
     token: varchar('token', { length: 255 }).notNull(),
-    expiredAt: timestamp('expired_at', {
+    expiresAt: timestamp('expires_at', {
       precision: 6,
       withTimezone: true,
     }).notNull(),
@@ -174,6 +174,6 @@ export const refreshToken = userSchema.table(
       .onDelete('cascade'),
     index('ix_refresh_token_user').on(table.userId),
     unique('uq_active_refresh_token').on(table.token),
-    index('ix_refresh_token_expire').on(table.expiredAt),
+    index('ix_refresh_token_expire').on(table.expiresAt),
   ],
 );

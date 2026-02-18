@@ -92,13 +92,13 @@ export class UserRepository {
     conn: DbOrTx,
     userId: bigint,
     token: string,
-    expiredAt: Date,
+    expiresAt: Date,
   ) {
     const { refreshToken } = schema;
 
     return conn
       .insert(refreshToken)
-      .values({ userId, token, expiredAt })
+      .values({ userId, token, expiresAt })
       .returning({ refreshTokenId: refreshToken.refreshTokenId });
   }
 
@@ -106,13 +106,13 @@ export class UserRepository {
     conn: DbOrTx,
     refreshTokenId: bigint,
     token: string,
-    expiredAt: Date,
+    expiresAt: Date,
   ) {
     const { refreshToken } = schema;
 
     return conn
       .update(refreshToken)
-      .set({ token, expiredAt })
+      .set({ token, expiresAt })
       .where(eq(refreshToken.refreshTokenId, refreshTokenId))
       .returning({ refreshTokenId: refreshToken.refreshTokenId });
   }

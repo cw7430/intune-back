@@ -50,7 +50,7 @@ export class AuthService {
       throw new CustomException('LOGIN_ERROR');
     }
 
-    const { tokenResponse, refreshTokenExpiredAt } =
+    const { tokenResponse, refreshTokenExpiresAt } =
       await this.authUtil.issueTokens(
         signInResult.userId,
         signInResult.authRole,
@@ -61,7 +61,7 @@ export class AuthService {
       this.db,
       signInResult.userId,
       tokenResponse.refreshToken,
-      refreshTokenExpiredAt,
+      refreshTokenExpiresAt,
     );
 
     const response = {
@@ -109,7 +109,7 @@ export class AuthService {
       throw new CustomException('LOGIN_ERROR');
     }
 
-    const { tokenResponse, refreshTokenExpiredAt } =
+    const { tokenResponse, refreshTokenExpiresAt } =
       await this.authUtil.issueTokens(
         formalTokenInfo.userId,
         refreshResult.authRole,
@@ -120,7 +120,7 @@ export class AuthService {
       this.db,
       formalRefreshTokenInfo.refreshTokenId,
       tokenResponse.refreshToken,
-      refreshTokenExpiredAt,
+      refreshTokenExpiresAt,
     );
 
     const response = {
@@ -193,7 +193,7 @@ export class AuthService {
       throw new CustomException('LOGIN_ERROR');
     }
 
-    const { tokenResponse, refreshTokenExpiredAt } =
+    const { tokenResponse, refreshTokenExpiresAt } =
       await this.authUtil.issueTokens(
         insertedUser.userId,
         insertedUser.authRole,
@@ -204,7 +204,7 @@ export class AuthService {
       this.db,
       insertedUser.userId,
       tokenResponse.refreshToken,
-      refreshTokenExpiredAt,
+      refreshTokenExpiresAt,
     );
 
     const response = {

@@ -15,6 +15,13 @@
       "when": 1770304268889,
       "tag": "0001_remarkable_marten_broadcloak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771393270730,
+      "tag": "0002_supreme_peter_quill",
+      "breakpoints": true
     }
   ]
 }

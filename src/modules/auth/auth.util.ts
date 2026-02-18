@@ -24,11 +24,11 @@ export class AuthUtil {
     return {
       tokenResponse: {
         accessToken: accessTokenInfo.token,
-        accessTokenExpiryMs: accessTokenInfo.expiryMs,
+        accessTokenExpiresAtMs: accessTokenInfo.expiresAtMs,
         refreshToken: refreshTokenInfo.token,
-        refreshTokenExpiryMs: refreshTokenInfo.expiryMs,
+        refreshTokenExpiresAtMs: refreshTokenInfo.expiresAtMs,
       },
-      refreshTokenExpiredAt: new Date(refreshTokenInfo.expiryMs),
+      refreshTokenExpiresAt: new Date(refreshTokenInfo.expiresAtMs),
     };
   }
 
