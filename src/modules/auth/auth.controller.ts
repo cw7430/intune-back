@@ -1,4 +1,4 @@
-import { Controller, Post, Patch, Body, Req } from '@nestjs/common';
+import { Controller, Post, Patch, Body, Req, UseGuards } from '@nestjs/common';
 import { type FastifyRequest } from 'fastify';
 import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
@@ -11,8 +11,9 @@ import {
   RefreshRequestDto,
   SignOutRequestDto,
 } from './dto/request';
-import { SignInResponseDto } from './dto/response';
-import { ApiSuccessResponse } from '@/common/decorator';
+import { MeResponseDto, SignInResponseDto } from './dto/response';
+import { ApiSuccessResponse, CurrentUser } from '@/common/decorator';
+import { AuthGuard } from './guard/auth.guard';
 
 @Controller('/api/v1/auth')
 @ApiTags('auth')
@@ -64,5 +65,13 @@ export class AuthController {
     return SuccessResponseDto.okWith(
       await this.authService.nativeSignUp(requestDto),
     );
+  }
+
+  @Post('/me')
+  @UseGuards(AuthGuard)
+  @ApiSuccessResponse(MeResponseDto)
+  @ApiBearerAuth('accessToken')
+  parseMe(@CurrentUser('userId') userId: bigint) {
+    return SuccessResponseDto.okWith(this.authService.parseMe(userId));
   }
 }
